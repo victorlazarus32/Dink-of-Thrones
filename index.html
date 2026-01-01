@@ -1132,7 +1132,7 @@ function populateMemberList() {
   dl.innerHTML = options;
 }
 
-(function init() {
+function init() {
   // 1) load names for autocomplete
   populateMemberList();
 
@@ -1145,10 +1145,15 @@ function populateMemberList() {
     // fresh start: show the setup screen so you can enter teams
     showCard("setupCard");
   }
-})();
+}
+
+// Run init after the page is fully loaded (more reliable, especially on iPhone)
+window.addEventListener("load", init);
 </script>
 </body>
 </html>
+
+
 
 
 
