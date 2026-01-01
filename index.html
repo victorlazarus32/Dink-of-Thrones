@@ -370,10 +370,10 @@
       </div>
       <div id="duprNote" class="event-note" style="display:none;">
         DUPR Event: Each team has two players. Enter both players’ names, ratings (1.50–8.50), and DUPR IDs. Team seeding uses the average rating.
-      </div>
+      
 
       <h3>2️⃣ Enter Teams (12)</h3>
-      <div id="teamInputs"></div>
+      <div id="teamInputs">
       <button class="btn-primary" onclick="startEvent()">Start Dink of Thrones</button>
       <div id="setupMsg" class="message"></div>
     </div>
@@ -409,7 +409,8 @@
       </div>
     </div>
   </div>
-
+<datalist id="memberList"></datalist>
+  <script src="members.js"></script>
   <script>
     var STORAGE_KEY = "dink_of_thrones_state_v4";
 
@@ -1114,6 +1115,7 @@ function populateMemberList() {
   </script>
 </body>
 </html>
+
 
 
 
