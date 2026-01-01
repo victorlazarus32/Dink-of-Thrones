@@ -1086,8 +1086,26 @@
       roundMsg.textContent = "Last round undone. The realm rewinds.";
       roundMsg.className = "message message-success";
     }
+function populateMemberList() {
+  var dl = document.getElementById("memberList");
+  if (!dl || !window.DINK_MEMBERS) return;
+
+  var options = "";
+  for (var i = 0; i < DINK_MEMBERS.length; i++) {
+    var name = DINK_MEMBERS[i];
+    options += '<option value="' + String(name)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;") +
+      '"></option>';
+  }
+  dl.innerHTML = options;
+}
 
     (function init() {
+      populateMemberList();
       var restored = loadStateIfExists();
       if (!restored) {
         // fresh start
@@ -1096,5 +1114,6 @@
   </script>
 </body>
 </html>
+
 
 
