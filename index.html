@@ -1132,16 +1132,25 @@ function populateMemberList() {
   dl.innerHTML = options;
 }
 
-    (function init() {
-      populateMemberList();buildTeamInputs();
-      var restored = loadStateIfExists();
-      if (!restored) {
-        // fresh start
-      }
-    })();
-  </script>
+(function init() {
+  // 1) load names for autocomplete
+  populateMemberList();
+
+  // 2) build the 12 team input blocks on the setup screen
+  buildTeamInputs();
+
+  // 3) try to restore prior state if it exists
+  var restored = loadStateIfExists();
+  if (!restored) {
+    // fresh start: show the setup screen so you can enter teams
+    showCard("setupCard");
+  }
+})();
+</script>
 </body>
 </html>
+
+
 
 
 
