@@ -462,6 +462,13 @@
 
   teamInputsDiv.innerHTML = html;
 }
+    function showCard(id) {
+  var cards = document.querySelectorAll(".card");
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].classList.add("hidden");
+  }
+  document.getElementById(id).classList.remove("hidden");
+}
 
     function escapeHtml(str) {
       if (!str) return "";
@@ -1152,6 +1159,7 @@ window.addEventListener("load", init);
 </script>
 </body>
 </html>
+
 
 
 
