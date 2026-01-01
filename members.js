@@ -1,5 +1,4 @@
 var DINK_MEMBERS = [
-  
 " max Aguilar ",
 "Aaron Butler",
 "Aaron Perez",
