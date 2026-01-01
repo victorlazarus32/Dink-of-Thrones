@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -370,10 +369,10 @@
       </div>
       <div id="duprNote" class="event-note" style="display:none;">
         DUPR Event: Each team has two players. Enter both players’ names, ratings (1.50–8.50), and DUPR IDs. Team seeding uses the average rating.
-      
+      </div>
 
       <h3>2️⃣ Enter Teams (12)</h3>
-      <div id="teamInputs">
+      <div id="teamInputs"></div>
       <button class="btn-primary" onclick="startEvent()">Start Dink of Thrones</button>
       <div id="setupMsg" class="message"></div>
     </div>
@@ -409,8 +408,7 @@
       </div>
     </div>
   </div>
-<datalist id="memberList"></datalist>
-  <script src="members.js"></script>
+
   <script>
     var STORAGE_KEY = "dink_of_thrones_state_v4";
 
@@ -435,40 +433,6 @@
     var historyCard = document.getElementById("historyCard");
     var historyContainer = document.getElementById("historyContainer");
     var duprNote = document.getElementById("duprNote");
-    function buildTeamInputs() {
-  var html = "";
-  for (var i = 1; i <= 12; i++) {
-    html +=
-      '<div class="team-setup-block">' +
-        '<div class="team-setup-title">Team ' + i + '</div>' +
-        '<input type="text" id="teamName_' + i + '" placeholder="Team ' + i + ' Name" />' +
-        '<div class="dupr-block" id="duprBlock_' + i + '">' +
-
-          '<div class="player-row">' +
-            '<input type="text" id="teamP1Name_' + i + '" placeholder="Player 1 Name" list="memberList" />' +
-            '<input type="number" step="0.01" id="teamP1Dupr_' + i + '" placeholder="P1 DUPR" />' +
-            '<input type="text" id="teamP1Id_' + i + '" placeholder="P1 DUPR ID" />' +
-          '</div>' +
-
-          '<div class="player-row">' +
-            '<input type="text" id="teamP2Name_' + i + '" placeholder="Player 2 Name" list="memberList" />' +
-            '<input type="number" step="0.01" id="teamP2Dupr_' + i + '" placeholder="P2 DUPR" />' +
-            '<input type="text" id="teamP2Id_' + i + '" placeholder="P2 DUPR ID" />' +
-          '</div>' +
-
-        '</div>' +
-      '</div>';
-  }
-
-  teamInputsDiv.innerHTML = html;
-}
-    function showCard(id) {
-  var cards = document.querySelectorAll(".card");
-  for (var i = 0; i < cards.length; i++) {
-    cards[i].classList.add("hidden");
-  }
-  document.getElementById(id).classList.remove("hidden");
-}
 
     function escapeHtml(str) {
       if (!str) return "";
@@ -559,12 +523,12 @@
             '<input type="text" id="teamName_' + i + '" placeholder="Team ' + i + ' Name" />' +
             '<div class="dupr-block" id="duprBlock_' + i + '">' +
               '<div class="player-row">' +
-                '<input type="text" id="teamP1Name_' + i + '" placeholder="Player 1 Name" list="memberList" />' +
+                '<input type="text" id="teamP1Name_' + i + '" placeholder="Player 1 Name" />' +
                 '<input type="number" step="0.01" id="teamP1Dupr_' + i + '" placeholder="P1 DUPR" />' +
                 '<input type="text" id="teamP1Id_' + i + '" placeholder="P1 DUPR ID" />' +
               '</div>' +
               '<div class="player-row">' +
-                '<input type="text" id="teamP2Name_' + i + '" placeholder="Player 2 Name" list="memberList" />' +
+                '<input type="text" id="teamP2Name_' + i + '" placeholder="Player 2 Name" />' +
                 '<input type="number" step="0.01" id="teamP2Dupr_' + i + '" placeholder="P2 DUPR" />' +
                 '<input type="text" id="teamP2Id_' + i + '" placeholder="P2 DUPR ID" />' +
               '</div>' +
@@ -1121,53 +1085,13 @@
       roundMsg.textContent = "Last round undone. The realm rewinds.";
       roundMsg.className = "message message-success";
     }
-function populateMemberList() {
-  var dl = document.getElementById("memberList");
-  if (!dl || !window.DINK_MEMBERS) return;
 
-  var options = "";
-  for (var i = 0; i < DINK_MEMBERS.length; i++) {
-    var name = DINK_MEMBERS[i];
-    options += '<option value="' + String(name)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;") +
-      '"></option>';
-  }
-  dl.innerHTML = options;
-}
     (function init() {
-    // 1) load names for autocomplete
-    populateMemberList();
-
-    // 2) build the 12 team input blocks on the setup screen
-    buildTeamInputs();
-
-    // 3) ALWAYS show the setup screen so you can enter teams
-    showCard("setupCard");
-
-    // 4) Optionally restore any saved data in the background
-    loadStateIfExists();
-})();
-
-// Run init after the page is fully loaded
-window.addEventListener("load", init);
-
-</script>
+      var restored = loadStateIfExists();
+      if (!restored) {
+        // fresh start
+      }
+    })();
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
