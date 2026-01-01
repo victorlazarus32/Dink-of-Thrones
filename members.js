@@ -1,4 +1,4 @@
-const DINK_MEMBERS = [
+window.DINK_MEMBERS = [
   "Test Player One",
   "Test Player Two",
   "Test Player Three"
