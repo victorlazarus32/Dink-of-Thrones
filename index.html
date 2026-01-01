@@ -1138,8 +1138,7 @@ function populateMemberList() {
   }
   dl.innerHTML = options;
 }
-
-(function init() {
+    (function init() {
     // 1) load names for autocomplete
     populateMemberList();
 
@@ -1153,9 +1152,13 @@ function populateMemberList() {
     loadStateIfExists();
 })();
 
+// Run init after the page is fully loaded
+window.addEventListener("load", init);
+
 </script>
 </body>
 </html>
+
 
 
 
