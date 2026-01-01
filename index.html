@@ -1139,26 +1139,24 @@ function populateMemberList() {
   dl.innerHTML = options;
 }
 
-function init() {
-  // 1) load names for autocomplete
-  populateMemberList();
+(function init() {
+    // 1) load names for autocomplete
+    populateMemberList();
 
-  // 2) build the 12 team input blocks on the setup screen
-  buildTeamInputs();
+    // 2) build the 12 team input blocks on the setup screen
+    buildTeamInputs();
 
-  // 3) try to restore prior state if it exists
-  var restored = loadStateIfExists();
-  if (!restored) {
-    // fresh start: show the setup screen so you can enter teams
+    // 3) ALWAYS show the setup screen so you can enter teams
     showCard("setupCard");
-  }
-}
 
-// Run init after the page is fully loaded (more reliable, especially on iPhone)
-window.addEventListener("load", init);
+    // 4) Optionally restore any saved data in the background
+    loadStateIfExists();
+})();
+
 </script>
 </body>
 </html>
+
 
 
 
