@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dink of Thrones – Team Ladder with Byes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <style>
+    body {
+      background: #020617;
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      color: #f9fafb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 10px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.4), rgba(15,23,42,0.95));
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .banner {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .banner-logo {
+      max-width: 160px;
+      height: auto;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.65);
+      border: 1px solid rgba(148,163,184,0.4);
+      object-fit: cover;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 6px 0 2px 0;
+      font-size: 1.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .sub {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .card {
+      background: rgba(2,6,23,0.92);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(31,41,55,0.9);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6);
+    }
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 9px 10px;
+      margin-bottom: 6px;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #f9fafb;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input::placeholder {
+      color: #6b7280;
+    }
+
+    button {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 6px;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: #111827;
+    }
+
+    .btn-secondary {
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid #4b5563;
+    }
+
+    .btn-danger {
+      background: #b91c1c;
+      color: #fee2e2;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 6px;
+    }
+
+    .layout-2col {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .layout-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .court {
+      background: #020617;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      padding: 8px;
+      margin-bottom: 6px;
+    }
+
+    .court h4 {
+      margin: 0 0 4px 0;
+      font-size: 0.95rem;
+    }
+
+    .court-tag {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .team-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .team-pill {
+      background: #0b1220;
+      border-radius: 999px;
+      padding: 6px 8px;
+      border: 1px solid #1f2937;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .message {
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .message-error {
+      color: #fecaca;
+    }
+
+    .message-success {
+      color: #bbf7d0;
+    }
+
+    .stand-team {
+      background: #020617;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 6px 8px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .rank-badge {
+      display: inline-block;
+      min-width: 22px;
+      text-align: center;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #374151;
+      font-size: 0.75rem;
+      margin-right: 6px;
+      padding: 2px 4px;
+    }
+
+    .rank-badge.champ {
+      background: #f97316;
+      border-color: #fed7aa;
+      color: #111827;
+    }
+
+    .rank-badge.purg {
+      background: #4b5563;
+      border-color: #9ca3af;
+      color: #e5e7eb;
+    }
+
+    .win {
+      color: #4ade80;
+      font-weight: 600;
+    }
+
+    .loss {
+      color: #f97373;
+      font-weight: 600;
+    }
+
+    .diff {
+      color: #facc15;
+      font-size: 0.78rem;
+      margin-left: 6px;
+    }
+
+    .history-round {
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+    }
+
+    .history-header {
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #e5e7eb;
+    }
+
+    .history-item {
+      color: #9ca3af;
+      margin-left: 4px;
+    }
+
+    .history-winner {
+      color: #4ade80;
+      font-weight: 600;
+    }
+
+    .history-byes {
+      color: #facc15;
+      margin-left: 4px;
+      font-size: 0.78rem;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Medal/logo image -->
+    <div class="banner">
+      <!-- Make sure this filename matches the image in your repo (e.g., dink-logo.jpg) -->
+      <img src="dink-medal.jpg" alt="Dink of Thrones Medal" class="banner-logo" />
+    </div>
+
+    <h1>DINK OF THRONES</h1>
+    <div class="sub">
+      Medieval Team Ladder • Up to 6 Courts • Byes Rotate Fairly<br />
+      Court 1 = King’s Landing • Court 6 = The Dreadfort
+    </div>
+
+    <!-- SETUP -->
+    <div class="card" id="setupCard">
+      <h3>1️⃣ Enter Team Names (min 4, max 16)</h3>
+      <div class="grid-2" id="teamInputs"></div>
+      <button class="btn-primary" onclick="startEvent()">Start Dink of Thrones</button>
+      <div id="setupMsg" class="message"></div>
+    </div>
+
+    <div class="layout-2col">
+      <div>
+        <!-- COURTS -->
+        <div class="card" id="courtsCard" style="display:none;">
+          <h3>2️⃣ Round – Enter Scores Only</h3>
+          <div id="roundInfo" style="font-size:0.8rem;color:#9ca3af;margin-bottom:6px;"></div>
+          <div id="courtsContainer"></div>
+          <button class="btn-primary" onclick="applyResults()">Apply Results ➜ Next Round</button>
+          <button class="btn-secondary" onclick="resetStats()">Reset Wins/Losses</button>
+          <button class="btn-danger" onclick="undoLastRound()">Undo Last Round</button>
+          <button class="btn-danger" onclick="hardResetTeams()">Reset All Teams & Start Over</button>
+          <div id="roundMsg" class="message"></div>
+        </div>
+      </div>
+
+      <div>
+        <!-- STANDINGS -->
+        <div class="card" id="standingsCard" style="display:none;">
+          <h3>🏆 House Standings</h3>
+          <div id="standingsContainer"></div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="card" id="historyCard" style="display:none;">
+          <h3>📜 Battle History</h3>
+          <div id="historyContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Persistence key =====
+    var STORAGE_KEY = "dink_of_thrones_state_v5";
+
+    // Core state
+    var teams = [];        // {id, name, wins, losses, pointsFor, pointsAgainst, byeCount}
+    var courts = [];       // [[teamIdA, teamIdB], ...]
+    var currentRound = 1;
+    var roundHistory = []; // [{round, matches: [...], byes: [name,...]}]
+    var stateStack = [];   // for undo
+    var currentRoundByes = []; // [{... team objects ...}] for the round being played
+
+    // DOM references
+    var teamInputsDiv      = document.getElementById("teamInputs");
+    var setupMsg           = document.getElementById("setupMsg");
+    var courtsCard         = document.getElementById("courtsCard");
+    var courtsContainer    = document.getElementById("courtsContainer");
+    var standingsCard      = document.getElementById("standingsCard");
+    var standingsContainer = document.getElementById("standingsContainer");
+    var historyCard        = document.getElementById("historyCard");
+    var historyContainer   = document.getElementById("historyContainer");
+    var roundInfo          = document.getElementById("roundInfo");
+    var roundMsg           = document.getElementById("roundMsg");
+    var setupCard          = document.getElementById("setupCard");
+
+    // ===== Utility =====
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>"']/g, function (c) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[c] || c;
+      });
+    }
+
+    function saveState() {
+      try {
+        var payload = {
+          teams: teams,
+          courts: courts,
+          currentRound: currentRound,
+          roundHistory: roundHistory,
+          currentRoundByes: currentRoundByes
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (e) {
+        console.warn("Could not save Dink of Thrones state:", e);
+      }
+    }
+
+    function loadSavedState() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+
+        var data = JSON.parse(raw);
+        if (!data || !Array.isArray(data.teams) || !Array.isArray(data.courts)) return;
+
+        teams = data.teams;
+        courts = data.courts;
+        currentRound = data.currentRound || 1;
+        roundHistory = data.roundHistory || [];
+        currentRoundByes = data.currentRoundByes || [];
+        stateStack = [];
+
+        setupCard.style.display = "none";
+        courtsCard.style.display = "block";
+        standingsCard.style.display = "block";
+        historyCard.style.display = "block";
+
+        renderCourts();
+        renderStandings();
+        renderHistory();
+      } catch (e) {
+        console.warn("Could not load Dink of Thrones state:", e);
+      }
+    }
+
+    function clearSavedState() {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {
+        console.warn("Could not clear Dink of Thrones state:", e);
+      }
+    }
+
+    // ===== Setup UI =====
+    function buildTeamInputs() {
+      var html = "";
+      // Up to 16 teams
+      for (var i = 1; i <= 16; i++) {
+        html += '<input type="text" id="team' + i + '" placeholder="Team ' + i + '" />';
+      }
+      teamInputsDiv.innerHTML = html;
+    }
+
+    buildTeamInputs();
+    loadSavedState();
+
+    // ===== Helpers =====
+    function getTeamById(id) {
+      for (var i = 0; i < teams.length; i++) {
+        if (teams[i].id === id) return teams[i];
+      }
+      return null;
+    }
+
+    // --- Base Swiss sort: Win % DESC, PD per game DESC, losses ASC, name ASC ---
+    function sortTeamsBase(a, b) {
+      var gamesA = a.wins + a.losses;
+      var gamesB = b.wins + b.losses;
+
+      var pctA = gamesA > 0 ? a.wins / gamesA : 0;
+      var pctB = gamesB > 0 ? b.wins / gamesB : 0;
+      if (pctB !== pctA) return pctB - pctA;
+
+      var diffA = a.pointsFor - a.pointsAgainst;
+      var diffB = b.pointsFor - b.pointsAgainst;
+      var diffPerGameA = gamesA > 0 ? diffA / gamesA : 0;
+      var diffPerGameB = gamesB > 0 ? diffB / gamesB : 0;
+      if (diffPerGameB !== diffPerGameA) return diffPerGameB - diffPerGameA;
+
+      if (a.losses !== b.losses) return a.losses - b.losses;
+
+      return a.name.localeCompare(b.name);
+    }
+
+    // Standings sort: just use the base sort (byeCount is displayed only, not ranking)
+    function sortTeamsWithByes(a, b) {
+      return sortTeamsBase(a, b);
+    }
+
+    // ===== BYE LOGIC =====
+    function assignCourtsForNextRound() {
+      var result = { byeTeams: [] };
+
+      if (!teams.length) {
+        courts = [];
+        currentRoundByes = [];
+        return result;
+      }
+
+      var total = teams.length;
+      var maxCourts = 6;
+      var maxPairsByCourts = Math.min(maxCourts, Math.floor(total / 2));
+      var activeSlots = maxPairsByCourts * 2;
+      var byeSlots = total - activeSlots;
+
+      // Sort for bye selection:
+      // 1) Fewer byes first
+      // 2) Among equal byeCount, weaker Swiss performance first
+      var byeSorted = teams.slice().sort(function (a, b) {
+        var byeA = (typeof a.byeCount === "number") ? a.byeCount : 0;
+        var byeB = (typeof b.byeCount === "number") ? b.byeCount : 0;
+        if (byeA !== byeB) return byeA - byeB;
+        // sortTeamsBase is best-to-worst; invert so weaker come first
+        return -sortTeamsBase(a, b);
+      });
+
+      var byeTeams = [];
+      var remainingTeams = byeSorted.slice();
+
+      if (byeSlots > 0) {
+        byeTeams = remainingTeams.slice(0, byeSlots);
+        remainingTeams = remainingTeams.slice(byeSlots);
+      }
+
+      // increment byeCount for teams sitting this round
+      for (var i = 0; i < byeTeams.length; i++) {
+        if (typeof byeTeams[i].byeCount !== "number") {
+          byeTeams[i].byeCount = 0;
+        }
+        byeTeams[i].byeCount += 1;
+      }
+
+      // Now sort remaining teams by Swiss for court assignment
+      remainingTeams.sort(sortTeamsBase);
+
+      courts = [];
+      var pairs = Math.min(maxPairsByCourts, Math.floor(remainingTeams.length / 2));
+      for (var c = 0; c < pairs; c++) {
+        var t1 = remainingTeams[2 * c];
+        var t2 = remainingTeams[2 * c + 1];
+        if (t1 && t2) {
+          courts.push([t1.id, t2.id]);
+        }
+      }
+
+      currentRoundByes = byeTeams.slice();
+      result.byeTeams = byeTeams;
+      return result;
+    }
+
+    // ===== Event start =====
+    function startEvent() {
+      setupMsg.textContent = "";
+      setupMsg.className = "message";
+
+      teams = [];
+      courts = [];
+      currentRound = 1;
+      roundHistory = [];
+      stateStack = [];
+      currentRoundByes = [];
+      roundMsg.textContent = "";
+      roundMsg.className = "message";
+
+      for (var i = 1; i <= 16; i++) {
+        var input = document.getElementById("team" + i);
+        if (!input) continue;
+        var val = input.value.trim();
+        if (!val) continue;
+
+        teams.push({
+          id: "t" + i,
+          name: val,
+          wins: 0,
+          losses: 0,
+          pointsFor: 0,
+          pointsAgainst: 0,
+          byeCount: 0
+        });
+      }
+
+      if (teams.length < 4) {
+        setupMsg.textContent = "Please enter at least 4 teams.";
+        setupMsg.className = "message message-error";
+        teams = [];
+        return;
+      }
+
+      var initial = assignCourtsForNextRound();
+
+      setupCard.style.display = "none";
+      courtsCard.style.display = "block";
+      standingsCard.style.display = "block";
+      historyCard.style.display = "block";
+
+      renderCourts();
+      renderStandings();
+      renderHistory();
+      saveState();
+
+      if (initial.byeTeams.length > 0) {
+        var byeNames = initial.byeTeams.map(function (t) { return t.name; }).join(", ");
+        roundMsg.textContent = "Round 1 ready. Byes this round: " + byeNames + ".";
+      } else {
+        roundMsg.textContent = "Round 1 ready. No byes this round.";
+      }
+      roundMsg.className = "message message-success";
+    }
+
+    // ===== Rendering =====
+    function renderCourts() {
+      var intro = "Round " + currentRound + ": climb from King’s Landing and avoid The Dreadfort.";
+      roundInfo.textContent = intro;
+
+      if (!courts.length) {
+        courtsContainer.innerHTML = "<div class='message'>No courts assigned for this round (too few teams).</div>";
+        return;
+      }
+
+      var html = "";
+      for (var i = 0; i < courts.length; i++) {
+        var pair = courts[i];
+        var t1 = getTeamById(pair[0]);
+        var t2 = getTeamById(pair[1]);
+        if (!t1 || !t2) continue;
+
+        var tag = "";
+        if (i === 0)      tag = '<span class="court-tag">King’s Landing (Champion Court)</span>';
+        else if (i === 1) tag = '<span class="court-tag">Winterfell</span>';
+        else if (i === 2) tag = '<span class="court-tag">Dragonstone</span>';
+        else if (i === 3) tag = '<span class="court-tag">The Vale</span>';
+        else if (i === 4) tag = '<span class="court-tag">The Riverlands</span>';
+        else if (i === 5) tag = '<span class="court-tag">The Dreadfort (Lowest Court)</span>';
+
+        html +=
+          '<div class="court">' +
+            '<h4>Court ' + (i + 1) + ' ' + tag + '</h4>' +
+            '<div class="team-row">' +
+              '<div class="team-pill"><span>' + escapeHTML(t1.name) + '</span></div>' +
+              '<input type="number" min="0" id="score_' + i + '_a" placeholder="Score" />' +
+            '</div>' +
+            '<div class="team-row">' +
+              '<div class="team-pill"><span>' + escapeHTML(t2.name) + '</span></div>' +
+              '<input type="number" min="0" id="score_' + i + '_b" placeholder="Score" />' +
+            '</div>' +
+          '</div>';
+      }
+      courtsContainer.innerHTML = html;
+      roundMsg.textContent = "";
+      roundMsg.className = "message";
+    }
+
+    function renderStandings() {
+      if (!teams.length) {
+        standingsContainer.innerHTML = "<div class='message'>No teams yet.</div>";
+        return;
+      }
+
+      var sorted = teams.slice().sort(sortTeamsWithByes);
+      var html = "";
+      for (var i = 0; i < sorted.length; i++) {
+        var t = sorted[i];
+        var games = t.wins + t.losses;
+        var pct = games > 0 ? (t.wins / games) : 0;
+        var diff = t.pointsFor - t.pointsAgainst;
+        var diffPerGame = games > 0 ? diff / games : 0;
+        var byeCount = (typeof t.byeCount === "number") ? t.byeCount : 0;
+
+        var rankClass = "";
+        if (i === 0) rankClass = " champ";
+        else if (i === sorted.length - 1) rankClass = " purg";
+
+        html +=
+          '<div class="stand-team">' +
+            '<span>' +
+              '<span class="rank-badge' + rankClass + '">' + (i + 1) + '</span>' +
+              escapeHTML(t.name) +
+            '</span>' +
+            '<span>' +
+              '<span class="win">' + t.wins + '</span>-<span class="loss">' + t.losses + '</span>' +
+              '<span class="diff">PD/G ' + diffPerGame.toFixed(1) + '</span>' +
+              ' • ' + (pct * 100).toFixed(0) + '%' +
+              ' • Byes: ' + byeCount +
+            '</span>' +
+          '</div>';
+      }
+      standingsContainer.innerHTML = html;
+    }
+
+    function renderHistory() {
+      if (!roundHistory.length) {
+        historyContainer.innerHTML = '<div class="history-round">No battles yet.</div>';
+        return;
+      }
+
+      var html = "";
+      for (var i = 0; i < roundHistory.length; i++) {
+        var r = roundHistory[i];
+        html += '<div class="history-round">';
+        html += '<div class="history-header">Round ' + r.round + '</div>';
+
+        if (r.byes && r.byes.length > 0) {
+          html += '<div class="history-byes"><strong>Byes:</strong> ' +
+                  r.byes.map(escapeHTML).join(", ") +
+                  '</div>';
+        }
+
+        for (var j = 0; j < r.matches.length; j++) {
+          var m = r.matches[j];
+          html +=
+            '<div class="history-item">' +
+            'Court ' + m.court + ': ' +
+            escapeHTML(m.teamA) + ' ' + m.scoreA +
+            ' vs ' +
+            escapeHTML(m.teamB) + ' ' + m.scoreB +
+            ' – <span class="history-winner">' + escapeHTML(m.winner) + '</span>' +
+            '</div>';
+        }
+        html += '</div>';
+      }
+      historyContainer.innerHTML = html;
+    }
+
+    // ===== Apply Results / Next Round =====
+    function applyResults() {
+      roundMsg.textContent = "";
+      roundMsg.className = "message";
+
+      if (!courts.length) {
+        roundMsg.textContent = "No courts are set up.";
+        roundMsg.className = "message message-error";
+        return;
+      }
+
+      var snapshot = {
+        teams: JSON.parse(JSON.stringify(teams)),
+        courts: JSON.parse(JSON.stringify(courts)),
+        currentRound: currentRound,
+        roundHistory: JSON.parse(JSON.stringify(roundHistory)),
+        currentRoundByes: JSON.parse(JSON.stringify(currentRoundByes))
+      };
+      stateStack.push(snapshot);
+
+      var matches = [];
+
+      for (var i = 0; i < courts.length; i++) {
+        var scoreAInput = document.getElementById("score_" + i + "_a");
+        var scoreBInput = document.getElementById("score_" + i + "_b");
+
+        if (!scoreAInput || !scoreBInput) continue;
+
+        var scoreA = parseInt(scoreAInput.value, 10);
+        var scoreB = parseInt(scoreBInput.value, 10);
+
+        if (isNaN(scoreA) || isNaN(scoreB)) {
+          roundMsg.textContent = "Enter scores for all courts.";
+          roundMsg.className = "message message-error";
+          stateStack.pop();
+          return;
+        }
+
+        var pair = courts[i];
+        var teamA = getTeamById(pair[0]);
+        var teamB = getTeamById(pair[1]);
+        if (!teamA || !teamB) {
+          roundMsg.textContent = "Invalid team on Court " + (i + 1) + ".";
+          roundMsg.className = "message message-error";
+          stateStack.pop();
+          return;
+        }
+
+        if (scoreA === scoreB) {
+          roundMsg.textContent = "No ties allowed on Court " + (i + 1) + ".";
+          roundMsg.className = "message message-error";
+          stateStack.pop();
+          return;
+        }
+
+        var winner, loser, winnerScore, loserScore;
+        if (scoreA > scoreB) {
+          winner = teamA;
+          loser = teamB;
+          winnerScore = scoreA;
+          loserScore = scoreB;
+        } else {
+          winner = teamB;
+          loser = teamA;
+          winnerScore = scoreB;
+          loserScore = scoreA;
+        }
+
+        winner.wins += 1;
+        loser.losses += 1;
+
+        winner.pointsFor += winnerScore;
+        winner.pointsAgainst += loserScore;
+        loser.pointsFor += loserScore;
+        loser.pointsAgainst += winnerScore;
+
+        matches.push({
+          court: i + 1,
+          teamA: teamA.name,
+          teamB: teamB.name,
+          scoreA: scoreA,
+          scoreB: scoreB,
+          winner: winner.name
+        });
+      }
+
+      var byeNameList = (currentRoundByes || []).map(function (t) { return t.name; });
+      roundHistory.push({
+        round: currentRound,
+        matches: matches,
+        byes: byeNameList
+      });
+
+      currentRound += 1;
+
+      var next = assignCourtsForNextRound();
+
+      renderCourts();
+      renderStandings();
+      renderHistory();
+      saveState();
+
+      if (next.byeTeams.length > 0) {
+        var byeNames = next.byeTeams.map(function (t) { return t.name; }).join(", ");
+        roundMsg.textContent = "Round " + (currentRound - 1) + " applied. Next round ready. Byes this round: " + byeNames + ".";
+      } else {
+        roundMsg.textContent = "Round " + (currentRound - 1) + " applied. Next round ready. No byes.";
+      }
+      roundMsg.className = "message message-success";
+    }
+
+    // ===== Resets / Undo =====
+    function resetStats() {
+      if (!teams.length) return;
+      if (!confirm("Reset wins/losses and point totals, but keep teams, courts, and bye history?")) {
+        return;
+      }
+
+      for (var i = 0; i < teams.length; i++) {
+        teams[i].wins = 0;
+        teams[i].losses = 0;
+        teams[i].pointsFor = 0;
+        teams[i].pointsAgainst = 0;
+        teams[i].byeCount = 0;
+      }
+      currentRound = 1;
+      roundHistory = [];
+      stateStack = [];
+      currentRoundByes = [];
+
+      var first = assignCourtsForNextRound();
+
+      renderCourts();
+      renderStandings();
+      renderHistory();
+      saveState();
+
+      if (first.byeTeams.length > 0) {
+        var byeNames = first.byeTeams.map(function (t) { return t.name; }).join(", ");
+        roundMsg.textContent = "Stats reset. Round 1 rebuilt. Byes this round: " + byeNames + ".";
+      } else {
+        roundMsg.textContent = "Stats reset. Round 1 rebuilt. No byes this round.";
+      }
+      roundMsg.className = "message message-success";
+    }
+
+    function undoLastRound() {
+      if (!stateStack.length) {
+        roundMsg.textContent = "Nothing to undo.";
+        roundMsg.className = "message message-error";
+        return;
+      }
+
+      var snapshot = stateStack.pop();
+      teams = snapshot.teams;
+      courts = snapshot.courts;
+      currentRound = snapshot.currentRound;
+      roundHistory = snapshot.roundHistory;
+      currentRoundByes = snapshot.currentRoundByes || [];
+
+      renderCourts();
+      renderStandings();
+      renderHistory();
+      saveState();
+
+      roundMsg.textContent = "Last round undone.";
+      roundMsg.className = "message message-success";
+    }
+
+    function hardResetTeams() {
+      if (!confirm("Are you sure you want to reset ALL teams and start over? This will clear history and byes.")) {
+        return;
+      }
+
+      teams = [];
+      courts = [];
+      currentRound = 1;
+      roundHistory = [];
+      stateStack = [];
+      currentRoundByes = [];
+      clearSavedState();
+
+      setupCard.style.display = "block";
+      courtsCard.style.display = "none";
+      standingsCard.style.display = "none";
+      historyCard.style.display = "none";
+
+      buildTeamInputs();
+      roundMsg.textContent = "";
+      roundMsg.className = "message";
+      setupMsg.textContent = "All teams cleared. Enter new teams to start a fresh event.";
+      setupMsg.className = "message message-success";
+    }
+  </script>
+</body>
+</html>
