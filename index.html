@@ -278,8 +278,9 @@
 </head>
 <body>
   <div class="container">
-    <!-- Medal logo (ensure dink-logo.jpg exists in same folder or change src) -->
+    <!-- Medal/logo image -->
     <div class="banner">
+      <!-- Make sure this filename matches the image in your repo (e.g., dink-logo.jpg) -->
       <img src="dink-logo.jpg" alt="Dink of Thrones Medal" class="banner-logo" />
     </div>
 
@@ -307,7 +308,7 @@
           <button class="btn-primary" onclick="applyResults()">Apply Results ➜ Next Round</button>
           <button class="btn-secondary" onclick="resetStats()">Reset Wins/Losses</button>
           <button class="btn-danger" onclick="undoLastRound()">Undo Last Round</button>
-          <button class="btn-danger" onclick="hardResetTeams()">Hard Reset Teams</button>
+          <button class="btn-danger" onclick="hardResetTeams()">Reset All Teams & Start Over</button>
           <div id="roundMsg" class="message"></div>
         </div>
       </div>
@@ -329,7 +330,7 @@
   </div>
 
   <script>
-    // ===== Persistence key (new version to avoid old broken state) =====
+    // ===== Persistence key =====
     var STORAGE_KEY = "dink_of_thrones_state_v5";
 
     // Core state
@@ -420,7 +421,7 @@
     // ===== Setup UI =====
     function buildTeamInputs() {
       var html = "";
-      // Up to 16 teams; you can increase this if you want more
+      // Up to 16 teams
       for (var i = 1; i <= 16; i++) {
         html += '<input type="text" id="team' + i + '" placeholder="Team ' + i + '" />';
       }
@@ -438,36 +439,32 @@
       return null;
     }
 
-    // Base Swiss sort: win% desc, wins desc, diff desc, losses asc, name asc
+    // --- Base Swiss sort: Win % DESC, PD per game DESC, losses ASC, name ASC ---
     function sortTeamsBase(a, b) {
       var gamesA = a.wins + a.losses;
       var gamesB = b.wins + b.losses;
+
       var pctA = gamesA > 0 ? a.wins / gamesA : 0;
       var pctB = gamesB > 0 ? b.wins / gamesB : 0;
-
       if (pctB !== pctA) return pctB - pctA;
-      if (a.wins !== b.wins) return b.wins - a.wins;
 
       var diffA = a.pointsFor - a.pointsAgainst;
       var diffB = b.pointsFor - b.pointsAgainst;
-      if (diffB !== diffA) return diffB - diffA;
+      var diffPerGameA = gamesA > 0 ? diffA / gamesA : 0;
+      var diffPerGameB = gamesB > 0 ? diffB / gamesB : 0;
+      if (diffPerGameB !== diffPerGameA) return diffPerGameB - diffPerGameA;
 
       if (a.losses !== b.losses) return a.losses - b.losses;
 
       return a.name.localeCompare(b.name);
     }
 
-    // Extend standings sort to show byes as well
+    // Standings sort: just use the base sort (byeCount is displayed only, not ranking)
     function sortTeamsWithByes(a, b) {
-      var byeA = (typeof a.byeCount === "number") ? a.byeCount : 0;
-      var byeB = (typeof b.byeCount === "number") ? b.byeCount : 0;
-
-      if (byeA !== byeB) return byeA - byeB; // fewer byes first
       return sortTeamsBase(a, b);
     }
 
     // ===== BYE LOGIC =====
-    // Choose who sits out (byes) first, then build courts from remaining teams.
     function assignCourtsForNextRound() {
       var result = { byeTeams: [] };
 
@@ -483,29 +480,26 @@
       var activeSlots = maxPairsByCourts * 2;
       var byeSlots = total - activeSlots;
 
-      // Copy teams and sort them for bye selection:
-      // 1) Fewer byes first.
-      // 2) Among equal byeCount, weaker Swiss performance first.
+      // Sort for bye selection:
+      // 1) Fewer byes first
+      // 2) Among equal byeCount, weaker Swiss performance first
       var byeSorted = teams.slice().sort(function (a, b) {
         var byeA = (typeof a.byeCount === "number") ? a.byeCount : 0;
         var byeB = (typeof b.byeCount === "number") ? b.byeCount : 0;
-        if (byeA !== byeB) return byeA - byeB; // fewer byes first
-
-        // sortTeamsBase: best to worst. Invert so weaker come first for byes.
-        var base = sortTeamsBase(a, b);
-        return -base;
+        if (byeA !== byeB) return byeA - byeB;
+        // sortTeamsBase is best-to-worst; invert so weaker come first
+        return -sortTeamsBase(a, b);
       });
 
       var byeTeams = [];
       var remainingTeams = byeSorted.slice();
 
       if (byeSlots > 0) {
-        // Give byes to those at the front: least byes, and among them the weaker teams
         byeTeams = remainingTeams.slice(0, byeSlots);
         remainingTeams = remainingTeams.slice(byeSlots);
       }
 
-      // Increment byeCount for teams sitting this round
+      // increment byeCount for teams sitting this round
       for (var i = 0; i < byeTeams.length; i++) {
         if (typeof byeTeams[i].byeCount !== "number") {
           byeTeams[i].byeCount = 0;
@@ -513,7 +507,7 @@
         byeTeams[i].byeCount += 1;
       }
 
-      // Now sort remaining teams by pure Swiss (best to worst) for court assignment
+      // Now sort remaining teams by Swiss for court assignment
       remainingTeams.sort(sortTeamsBase);
 
       courts = [];
@@ -545,7 +539,6 @@
       roundMsg.textContent = "";
       roundMsg.className = "message";
 
-      // Collect non-empty team names
       for (var i = 1; i <= 16; i++) {
         var input = document.getElementById("team" + i);
         if (!input) continue;
@@ -570,7 +563,6 @@
         return;
       }
 
-      // Initial assignment with possible byes
       var initial = assignCourtsForNextRound();
 
       setupCard.style.display = "none";
@@ -586,11 +578,10 @@
       if (initial.byeTeams.length > 0) {
         var byeNames = initial.byeTeams.map(function (t) { return t.name; }).join(", ");
         roundMsg.textContent = "Round 1 ready. Byes this round: " + byeNames + ".";
-        roundMsg.className = "message message-success";
       } else {
         roundMsg.textContent = "Round 1 ready. No byes this round.";
-        roundMsg.className = "message message-success";
       }
+      roundMsg.className = "message message-success";
     }
 
     // ===== Rendering =====
@@ -649,6 +640,7 @@
         var games = t.wins + t.losses;
         var pct = games > 0 ? (t.wins / games) : 0;
         var diff = t.pointsFor - t.pointsAgainst;
+        var diffPerGame = games > 0 ? diff / games : 0;
         var byeCount = (typeof t.byeCount === "number") ? t.byeCount : 0;
 
         var rankClass = "";
@@ -663,7 +655,7 @@
             '</span>' +
             '<span>' +
               '<span class="win">' + t.wins + '</span>-<span class="loss">' + t.losses + '</span>' +
-              '<span class="diff">PD ' + diff + '</span>' +
+              '<span class="diff">PD/G ' + diffPerGame.toFixed(1) + '</span>' +
               ' • ' + (pct * 100).toFixed(0) + '%' +
               ' • Byes: ' + byeCount +
             '</span>' +
@@ -706,7 +698,7 @@
       historyContainer.innerHTML = html;
     }
 
-    // ===== Apply Results / Next Round (with byes) =====
+    // ===== Apply Results / Next Round =====
     function applyResults() {
       roundMsg.textContent = "";
       roundMsg.className = "message";
@@ -717,7 +709,6 @@
         return;
       }
 
-      // Snapshot for undo
       var snapshot = {
         teams: JSON.parse(JSON.stringify(teams)),
         courts: JSON.parse(JSON.stringify(courts)),
@@ -775,7 +766,6 @@
           loserScore = scoreA;
         }
 
-        // Update stats
         winner.wins += 1;
         loser.losses += 1;
 
@@ -794,7 +784,6 @@
         });
       }
 
-      // Store this round with its byes
       var byeNameList = (currentRoundByes || []).map(function (t) { return t.name; });
       roundHistory.push({
         round: currentRound,
@@ -802,10 +791,8 @@
         byes: byeNameList
       });
 
-      // Advance round number
       currentRound += 1;
 
-      // Reassign courts considering byes for the next round
       var next = assignCourtsForNextRound();
 
       renderCourts();
@@ -834,14 +821,13 @@
         teams[i].losses = 0;
         teams[i].pointsFor = 0;
         teams[i].pointsAgainst = 0;
-        teams[i].byeCount = 0; // fresh ladder, fresh bye history
+        teams[i].byeCount = 0;
       }
       currentRound = 1;
       roundHistory = [];
       stateStack = [];
       currentRoundByes = [];
 
-      // Rebuild courts from scratch with fresh bye counts
       var first = assignCourtsForNextRound();
 
       renderCourts();
@@ -908,5 +894,3 @@
   </script>
 </body>
 </html>
-
-
