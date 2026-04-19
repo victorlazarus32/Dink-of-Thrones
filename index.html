@@ -493,7 +493,7 @@
 
       <!-- COURTS -->
       <div class="card" id="courtsCard" style="display:none;">
-        <h3>2️⃣ Round – Enter Scores Only</h3>
+        <h3 id="roundHeading">2️⃣ Round 1 – Enter Scores Only</h3>
         <div id="roundInfo" style="font-size:0.8rem;color:#9ca3af;margin-bottom:6px;"></div>
         <div id="courtsContainer"></div>
         <div class="button-row">
@@ -537,6 +537,7 @@
     var historyCard        = document.getElementById("historyCard");
     var historyContainer   = document.getElementById("historyContainer");
     var roundInfo          = document.getElementById("roundInfo");
+    var roundHeading       = document.getElementById("roundHeading");
     var roundMsg           = document.getElementById("roundMsg");
     var setupCard          = document.getElementById("setupCard");
 
@@ -774,6 +775,7 @@
     function renderCourts() {
       var intro = "Round " + currentRound + ": climb from King’s Landing and avoid The Dreadfort.";
       roundInfo.textContent = intro;
+      if (roundHeading) roundHeading.textContent = "2️⃣ Round " + currentRound + " – Enter Scores Only";
 
       if (!courts.length) {
         courtsContainer.innerHTML = "<div class='message'>No courts assigned for this round (too few teams).</div>";
