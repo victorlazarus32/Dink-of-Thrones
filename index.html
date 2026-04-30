@@ -218,7 +218,17 @@
     .courts-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(var(--court-rows, 3), auto);
+      grid-auto-flow: column;
       gap: 6px;
+    }
+
+    .standings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(var(--standings-rows, 6), auto);
+      grid-auto-flow: column;
+      gap: 3px 12px;
     }
 
     .button-row {
@@ -250,7 +260,16 @@
     }
 
     @media (max-width: 900px) {
-      .courts-grid { grid-template-columns: 1fr; }
+      .courts-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-auto-flow: row;
+      }
+      .standings-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-auto-flow: row;
+      }
       .button-row { grid-template-columns: 1fr; }
     }
 
@@ -783,7 +802,8 @@
       }
 
       var houses = ["targaryen", "stark", "baratheon", "arryn", "tully", "bolton"];
-      var html = '<div class="courts-grid">';
+      var courtRows = Math.ceil(courts.length / 2);
+      var html = '<div class="courts-grid" style="--court-rows: ' + courtRows + ';">';
       for (var i = 0; i < courts.length; i++) {
         var pair = courts[i];
         var t1 = getTeamById(pair[0]);
@@ -825,7 +845,8 @@
       }
 
       var sorted = teams.slice().sort(sortTeamsWithByes);
-      var html = "";
+      var standingsRows = Math.ceil(sorted.length / 2);
+      var html = '<div class="standings-grid" style="--standings-rows: ' + standingsRows + ';">';
       for (var i = 0; i < sorted.length; i++) {
         var t = sorted[i];
         var games = t.wins + t.losses;
@@ -858,6 +879,7 @@
             '</span>' +
           '</div>';
       }
+      html += '</div>';
       standingsContainer.innerHTML = html;
     }
 
